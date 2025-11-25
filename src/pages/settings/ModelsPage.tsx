@@ -69,11 +69,12 @@ export function ModelsPage() {
   const [providerFilter, setProviderFilter] = React.useState<string>("");
 
   // バリデーションスキーマ
-  const modelFormSchema = React.useMemo(() => z.object({
-    displayName: z.string().min(1, t("models.displayNameRequired")),
-    description: z.string().optional(),
-    providerName: z.string().min(1, t("models.providerRequired")),
-  }), [t]);
+  const modelFormSchema = React.useMemo(() =>
+    z.object({
+      displayName: z.string().min(1, t("models.displayNameRequired")),
+      description: z.string().optional(),
+      providerName: z.string().min(1, t("models.providerRequired")),
+    }), [t]);
 
   const {
     register,
@@ -173,7 +174,7 @@ export function ModelsPage() {
       const model = create(ModelsSchema, {
         displayName: data.displayName,
         description: data.description,
-        provider: selectedProvider,
+        providerName: selectedProvider.name,
       });
 
       const request = create(CreateModelRequestSchema, {
@@ -216,7 +217,7 @@ export function ModelsPage() {
         name: modelId,
         displayName: data.displayName,
         description: data.description,
-        provider: selectedProvider,
+        providerName: selectedProvider.name,
       });
 
       const request = create(UpdateModelRequestSchema, {
@@ -272,7 +273,7 @@ export function ModelsPage() {
     resetEdit({
       displayName: model.displayName,
       description: model.description,
-      providerName: model.provider?.name || "",
+      providerName: model.providerName || "",
     });
   };
 
@@ -334,12 +335,16 @@ export function ModelsPage() {
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValueText placeholder={t("models.allProviders")} />
+                        <SelectValueText
+                          placeholder={t("models.allProviders")}
+                        />
                       </SelectTrigger>
                       <Portal>
                         <SelectPositioner>
                           <SelectContent>
-                            <SelectItem item="">{t("models.allProviders")}</SelectItem>
+                            <SelectItem item="">
+                              {t("models.allProviders")}
+                            </SelectItem>
                             {providers.map((provider) => (
                               <SelectItem
                                 key={provider.name}
@@ -425,7 +430,9 @@ export function ModelsPage() {
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValueText placeholder={t("models.providerSelect")} />
+                            <SelectValueText
+                              placeholder={t("models.providerSelect")}
+                            />
                           </SelectTrigger>
                           <Portal>
                             <SelectPositioner>
@@ -495,10 +502,18 @@ export function ModelsPage() {
                 <Table.Root>
                   <Table.Header>
                     <Table.Row>
-                      <Table.ColumnHeader>{t("models.displayName")}</Table.ColumnHeader>
-                      <Table.ColumnHeader>{t("models.description")}</Table.ColumnHeader>
-                      <Table.ColumnHeader>{t("models.provider")}</Table.ColumnHeader>
-                      <Table.ColumnHeader>{t("models.resourceName")}</Table.ColumnHeader>
+                      <Table.ColumnHeader>
+                        {t("models.displayName")}
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader>
+                        {t("models.description")}
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader>
+                        {t("models.provider")}
+                      </Table.ColumnHeader>
+                      <Table.ColumnHeader>
+                        {t("models.resourceName")}
+                      </Table.ColumnHeader>
                       <Table.ColumnHeader textAlign="right">
                         {t("models.operations")}
                       </Table.ColumnHeader>
@@ -550,7 +565,9 @@ export function ModelsPage() {
                                     size="sm"
                                   >
                                     <SelectTrigger>
-                                      <SelectValueText placeholder={t("models.providerSelect")} />
+                                      <SelectValueText
+                                        placeholder={t("models.providerSelect")}
+                                      />
                                     </SelectTrigger>
                                     <SelectPositioner>
                                       <SelectContent>
@@ -570,8 +587,10 @@ export function ModelsPage() {
                             )
                             : (
                               <Text fontSize="sm">
-                                {model.provider?.displayName ||
-                                  model.provider?.name || "-"}
+                                {providers.find((p) =>
+                                  p.name === model.providerName
+                                )?.displayName ||
+                                  model.providerName || "-"}
                               </Text>
                             )}
                         </Table.Cell>

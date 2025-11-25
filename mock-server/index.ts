@@ -6,8 +6,10 @@ import {
 } from "@connectrpc/connect-node";
 import { VersionService } from "@/gen/sapphillon/v1/version_pb";
 import { WorkflowService } from "@/gen/sapphillon/v1/workflow_service_pb";
+import { PluginService } from "@/gen/sapphillon/v1/plugin_service_pb";
 import { versionHandler } from "./handlers/version-handler";
 import { workflowHandler } from "./handlers/workflow-handler";
+import { pluginHandler } from "./handlers/plugin-handler";
 import { initializeMockData } from "./data/mock-data";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 50051;
@@ -20,6 +22,7 @@ initializeMockData();
 const router = createConnectRouter({});
 router.service(VersionService, versionHandler);
 router.service(WorkflowService, workflowHandler);
+router.service(PluginService, pluginHandler);
 
 // パスマッピングを作成
 const paths = new Map<string, (typeof router.handlers)[0]>();
@@ -89,6 +92,11 @@ const server = http.createServer(async (req, res) => {
               "DeleteWorkflow",
             ],
             example: `POST /${WorkflowService.typeName}/ListWorkflows`,
+          },
+          {
+            name: PluginService.typeName,
+            methods: ["ListPlugins"],
+            example: `POST /${PluginService.typeName}/ListPlugins`,
           },
         ],
         note: "Connect RPC uses POST requests, not GET",
@@ -169,6 +177,9 @@ server.listen(PORT, HOST, () => {
   );
   console.log(
     `   Workflow Service: POST http://${HOST}:${PORT}/${WorkflowService.typeName}/ListWorkflows`
+  );
+  console.log(
+    `   Plugin Service: POST http://${HOST}:${PORT}/${PluginService.typeName}/ListPlugins`
   );
   console.log(
     `\n   Note: Connect RPC uses POST requests with /ServiceName/MethodName format`

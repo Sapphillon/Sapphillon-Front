@@ -165,7 +165,7 @@ export function PromptHistoryDialog({
       modal={true}
     >
       <Dialog.Backdrop />
-      <Dialog.Positioner zIndex={1400} portal>
+      <Dialog.Positioner zIndex={1400}>
         <Dialog.Content
           maxW={{ base: "100vw", md: "600px" }}
           maxH={{ base: "100vh", md: "80vh" }}

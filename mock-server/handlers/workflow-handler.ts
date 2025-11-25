@@ -27,7 +27,6 @@ import {
   UpdateWorkflowResponseSchema,
   DeleteWorkflowResponseSchema,
 } from "@/gen/sapphillon/v1/workflow_service_pb";
-import type { Workflow } from "@/gen/sapphillon/v1/workflow_pb";
 import {
   WorkflowSchema,
   WorkflowLanguage as WFLang,
@@ -158,17 +157,13 @@ workflow();`,
    * ワークフローを実行
    */
   async runWorkflow(request: RunWorkflowRequest): Promise<RunWorkflowResponse> {
-    let workflow: Workflow | undefined;
+    if (!request.byId) {
+      throw new ConnectError("by_id is required", Code.InvalidArgument);
+    }
 
-    if (request.source.case === "byId") {
-      workflow = getWorkflowById(request.source.value.workflowId);
-      if (!workflow) {
-        throw new ConnectError("Workflow not found", Code.NotFound);
-      }
-    } else if (request.source.case === "workflowDefinition") {
-      workflow = request.source.value;
-    } else {
-      throw new ConnectError("source is required", Code.InvalidArgument);
+    const workflow = getWorkflowById(request.byId.workflowId);
+    if (!workflow) {
+      throw new ConnectError("Workflow not found", Code.NotFound);
     }
 
     // モックの実行結果を返す

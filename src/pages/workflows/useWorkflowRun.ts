@@ -6,22 +6,10 @@
 
 import React from "react";
 import { clients } from "@/lib/grpc-clients";
-import type {
-  RunWorkflowRequest,
-  RunWorkflowResponse,
-} from "@/gen/sapphillon/v1/workflow_service_pb";
+import type { RunWorkflowResponse } from "@/gen/sapphillon/v1/workflow_service_pb";
+import { WorkflowSourceByIdSchema } from "@/gen/sapphillon/v1/workflow_service_pb";
 import type { Workflow } from "@/gen/sapphillon/v1/workflow_pb";
 import { create } from "@bufbuild/protobuf";
-import {
-  PermissionType,
-  PermissionLevel,
-  PermissionSchema,
-  AllowedPermissionSchema,
-} from "@/gen/sapphillon/v1/permission_pb";
-import {
-  WorkflowCodeSchema,
-  WorkflowSchema,
-} from "@/gen/sapphillon/v1/workflow_pb";
 
 /**
  * ワークフロー実行中のイベント
@@ -77,16 +65,12 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
       setRunning(true);
       try {
         append({ kind: "message", payload: { stage: "run", status: "start" } });
-        const request: RunWorkflowRequest = {
-          source: {
-            case: "byId",
-            value: {
-              workflowId,
-              workflowCodeId: workflowCodeId || "",
-            },
-          },
-        };
-        const res = await clients.workflow.runWorkflow(request);
+        const res = await clients.workflow.runWorkflow({
+          byId: create(WorkflowSourceByIdSchema, {
+            workflowId,
+            workflowCodeId: workflowCodeId || "",
+          }),
+        });
         setRunRes(res);
         append({ kind: "message", payload: res });
         append({ kind: "done", payload: { stage: "run" } });
@@ -99,57 +83,26 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
     [append, running]
   );
 
+  /**
+   * ワークフロー定義から直接実行（非推奨）
+   *
+   * 注意: API v0.9.0 以降、直接ワークフロー定義から実行する機能は削除されました。
+   * ワークフローを実行するには、まず保存してから runById を使用してください。
+   *
+   * @deprecated 代わりに runById を使用してください
+   */
   const runByDefinition = React.useCallback(
-    async (workflow: Workflow) => {
-      if (running) return;
-      setEvents([]);
-      setRunRes(null);
-      setRunning(true);
-      try {
-        append({ kind: "message", payload: { stage: "run", status: "start" } });
-        // Ensure the workflow definition grants ALL permissions when running from this UI.
-        // We add an AllowedPermission that grants PERMISSION_TYPE_ALLOW_ALL to all plugin functions.
-        const allowAllPermissionMsg = create(PermissionSchema, {
-          displayName: "ALLOW_ALL",
-          description:
-            "Granted by UI to allow full execution for testing/preview",
-          permissionType: PermissionType.ALLOW_ALL,
-          resource: [],
-          permissionLevel: PermissionLevel.CRITICAL,
-        });
-
-        const allowedMsg = create(AllowedPermissionSchema, {
-          pluginFunctionId: "*",
-          permissions: [allowAllPermissionMsg],
-        });
-
-        // Clone the workflow definition and append allowedPermissions (message instances) to each WorkflowCode entry.
-        const wfDef = create(WorkflowSchema, {
-          ...workflow,
-          workflowCode: (workflow.workflowCode || []).map((wc) =>
-            create(WorkflowCodeSchema, {
-              ...wc,
-              allowedPermissions: [...(wc.allowedPermissions || []), allowedMsg],
-            })
-          ),
-        });
-
-        const res = await clients.workflow.runWorkflow({
-          source: {
-            case: "workflowDefinition",
-            value: wfDef,
-          },
-        });
-        setRunRes(res);
-        append({ kind: "message", payload: res });
-        append({ kind: "done", payload: { stage: "run" } });
-      } catch (e) {
-        append({ kind: "error", payload: e });
-      } finally {
-        setRunning(false);
-      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async (_workflow: Workflow) => {
+      append({
+        kind: "error",
+        payload: new Error(
+          "Direct workflow definition execution is no longer supported. " +
+            "Please save the workflow first and use runById instead."
+        ),
+      });
     },
-    [append, running]
+    [append]
   );
 
   const clearEvents = React.useCallback(() => {
@@ -165,4 +118,3 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
     clearEvents,
   } as const;
 }
-

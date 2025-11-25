@@ -36,6 +36,7 @@ import type { Interceptor } from "@connectrpc/connect";
 
 import { VersionService } from "@/gen/sapphillon/v1/version_pb";
 import { WorkflowService } from "@/gen/sapphillon/v1/workflow_service_pb";
+import { PluginService } from "@/gen/sapphillon/v1/plugin_service_pb";
 import { ProviderService } from "@/gen/sapphillon/ai/v1/provider_service_pb";
 import { ModelService } from "@/gen/sapphillon/ai/v1/model_service_pb";
 import { SearchModelService } from "@/gen/sapphillon/ai/v1/search_model_service_pb";
@@ -131,10 +132,10 @@ export const GRPC_ERROR_MESSAGES: Record<Code, string> = {
 
 /**
  * ConnectErrorから人間が読めるメッセージを取得
- * 
+ *
  * 注意: この関数はi18nキーを返します。Reactコンポーネント内で使用する場合は、
  * useTranslation の t 関数を使用してください。
- * 
+ *
  * @example
  * ```typescript
  * // Reactコンポーネント内
@@ -148,7 +149,7 @@ export const GRPC_ERROR_MESSAGES: Record<Code, string> = {
  *   }
  * }
  * ```
- * 
+ *
  * @example
  * ```typescript
  * // Reactコンポーネント外（i18nextを直接使用）
@@ -169,9 +170,9 @@ export function getErrorMessageKey(error: ConnectError): string {
 
 /**
  * ConnectErrorから人間が読めるメッセージを取得（後方互換性のため）
- * 
+ *
  * @deprecated 代わりに getErrorMessageKey を使用し、useTranslation の t 関数で翻訳してください
- * 
+ *
  * @example
  * ```typescript
  * const { t } = useTranslation();
@@ -442,6 +443,7 @@ export function withInterceptors(...custom: Interceptor[]) {
   return {
     version: createClient(VersionService, t),
     workflow: createClient(WorkflowService, t),
+    plugin: createClient(PluginService, t),
     provider: createClient(ProviderService, t),
     model: createClient(ModelService, t),
     searchModel: createClient(SearchModelService, t),
@@ -488,13 +490,26 @@ export const versionClient = createClient(VersionService, defaultTransport);
  *   console.log(msg.workflowDefinition);
  * }
  *
- * // ワークフロー実行
+ * // ワークフロー実行（IDで指定）
  * const result = await workflowClient.runWorkflow({
- *   source: { case: "workflowDefinition", value: workflow }
+ *   byId: { workflowId: "wf-123", workflowCodeId: "code-456" }
  * });
  * ```
  */
 export const workflowClient = createClient(WorkflowService, defaultTransport);
+
+/**
+ * プラグイン管理サービスクライアント
+ *
+ * 利用可能なプラグインの一覧取得に使用します。
+ *
+ * @example
+ * ```typescript
+ * const res = await pluginClient.listPlugins({ pageSize: 10 });
+ * console.log(res.plugins);
+ * ```
+ */
+export const pluginClient = createClient(PluginService, defaultTransport);
 
 /**
  * AIプロバイダー管理サービスクライアント
@@ -541,6 +556,7 @@ export const searchModelClient = createClient(
 export const clients = {
   version: versionClient,
   workflow: workflowClient,
+  plugin: pluginClient,
   provider: providerClient,
   model: modelClient,
   searchModel: searchModelClient,

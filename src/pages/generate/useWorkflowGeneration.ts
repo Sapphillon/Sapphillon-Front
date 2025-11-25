@@ -10,17 +10,6 @@ import type {
   GenerateWorkflowResponse,
   RunWorkflowResponse,
 } from "@/gen/sapphillon/v1/workflow_service_pb";
-import {
-  PermissionType,
-  PermissionLevel,
-  PermissionSchema,
-  AllowedPermissionSchema,
-} from "@/gen/sapphillon/v1/permission_pb";
-import { create } from "@bufbuild/protobuf";
-import {
-  WorkflowCodeSchema,
-  WorkflowSchema,
-} from "@/gen/sapphillon/v1/workflow_pb";
 
 /**
  * ワークフロー生成中のイベント
@@ -163,49 +152,23 @@ export function useWorkflowGeneration(): UseWorkflowGenerationReturn {
     setEvents([]);
   }, []);
 
+  /**
+   * 最後に生成されたワークフローを実行（非推奨）
+   *
+   * 注意: API v0.9.0 以降、直接ワークフロー定義から実行する機能は削除されました。
+   * ワークフローを実行するには、まず保存してからIDで実行する必要があります。
+   *
+   * @deprecated 代わりにワークフローを保存してから runById を使用してください
+   */
   const runLatest = React.useCallback(async () => {
     if (!latest?.workflowDefinition) return;
-    try {
-      append({ kind: "message", payload: { stage: "run", status: "start" } });
-      // Ensure the workflow definition grants ALL permissions when running from this UI.
-      // We add an AllowedPermission that grants PERMISSION_TYPE_ALLOW_ALL to all plugin functions.
-      const allowAllPermissionMsg = create(PermissionSchema, {
-        displayName: "ALLOW_ALL",
-        description:
-          "Granted by UI to allow full execution for testing/preview",
-        permissionType: PermissionType.ALLOW_ALL,
-        resource: [],
-        permissionLevel: PermissionLevel.CRITICAL,
-      });
-
-      const allowedMsg = create(AllowedPermissionSchema, {
-        pluginFunctionId: "*",
-        permissions: [allowAllPermissionMsg],
-      });
-
-      // Clone the workflow definition and append allowedPermissions (message instances) to each WorkflowCode entry.
-      const wfDef = create(WorkflowSchema, {
-        ...latest.workflowDefinition,
-        workflowCode: (latest.workflowDefinition.workflowCode || []).map((wc) =>
-          create(WorkflowCodeSchema, {
-            ...wc,
-            allowedPermissions: [...(wc.allowedPermissions || []), allowedMsg],
-          })
-        ),
-      });
-
-      const res = await clients.workflow.runWorkflow({
-        source: {
-          case: "workflowDefinition",
-          value: wfDef,
-        },
-      });
-      setRunRes(res);
-      append({ kind: "message", payload: res });
-      append({ kind: "done", payload: { stage: "run" } });
-    } catch (e) {
-      append({ kind: "error", payload: e });
-    }
+    append({
+      kind: "error",
+      payload: new Error(
+        "Direct workflow definition execution is no longer supported. " +
+          "Please save the workflow first and run by ID."
+      ),
+    });
   }, [latest, append]);
 
   return {

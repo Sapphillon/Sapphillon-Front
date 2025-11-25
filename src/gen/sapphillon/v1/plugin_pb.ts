@@ -33,13 +33,13 @@ export const file_sapphillon_v1_plugin: GenFile = /*@__PURE__*/
 /**
  * Describes a callable function exposed by a plugin.
  * A function declares its purpose, identity, and required permissions for execution.
- * 
+ *
  * Fields:
  * - function_id: Stable unique identifier used by systems to reference the function.
  * - function_name: Human-friendly name suitable for UIs.
  * - description: Summary of what the function does and typical use cases.
  * - permissions: Permissions required for the caller to execute this function.
- * 
+ *
  * Example:
  *   PluginFunction {
  *     function_id: "send_notification"
@@ -107,7 +107,7 @@ export const PluginFunctionSchema: GenMessage<PluginFunction> = /*@__PURE__*/
 /**
  * Represents a plugin package that can be installed into the platform.
  * A plugin groups one or more functions and includes metadata useful for discovery and governance.
- * 
+ *
  * Fields:
  * - package_id: Stable unique identifier of the plugin package.
  * - package_name: Human-friendly name of the plugin.
@@ -117,11 +117,11 @@ export const PluginFunctionSchema: GenMessage<PluginFunction> = /*@__PURE__*/
  * - plugin_store_url: URL to the plugin page or documentation.
  * - internal_plugin: Indicates whether the plugin is internal-only.
  * - verified: Indicates whether the plugin is verified by the platform.
- * 
+ *
  * - deprecated: Indicates whether the plugin is deprecated and should not be used for new workflows.
  * - installed_at: Time when the plugin was installed.
  * - updated_at: Time when the plugin was last updated.
- * 
+ *
  * Example:
  *   PluginPackage {
  *     package_id: "com.example.notifications"
