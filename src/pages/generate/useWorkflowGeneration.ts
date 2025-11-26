@@ -5,11 +5,13 @@
  */
 
 import React from "react";
+import { create } from "@bufbuild/protobuf";
 import { clients } from "@/lib/grpc-clients";
 import type {
   GenerateWorkflowResponse,
   RunWorkflowResponse,
 } from "@/gen/sapphillon/v1/workflow_service_pb";
+import { WorkflowSourceByIdSchema } from "@/gen/sapphillon/v1/workflow_service_pb";
 
 /**
  * ワークフロー生成中のイベント
@@ -153,22 +155,48 @@ export function useWorkflowGeneration(): UseWorkflowGenerationReturn {
   }, []);
 
   /**
-   * 最後に生成されたワークフローを実行（非推奨）
+   * 最後に生成されたワークフローを実行
    *
-   * 注意: API v0.9.0 以降、直接ワークフロー定義から実行する機能は削除されました。
-   * ワークフローを実行するには、まず保存してからIDで実行する必要があります。
-   *
-   * @deprecated 代わりにワークフローを保存してから runById を使用してください
+   * ワークフローを保存してからIDで実行します。
    */
   const runLatest = React.useCallback(async () => {
     if (!latest?.workflowDefinition) return;
-    append({
-      kind: "error",
-      payload: new Error(
-        "Direct workflow definition execution is no longer supported. " +
-          "Please save the workflow first and run by ID."
-      ),
-    });
+    try {
+      append({ kind: "message", payload: { stage: "save", status: "start" } });
+
+      // ワークフローを保存
+      const saveResponse = await clients.workflow.updateWorkflow({
+        workflow: latest.workflowDefinition,
+      });
+
+      if (!saveResponse.workflow?.id) {
+        throw new Error("Failed to save workflow: no ID returned");
+      }
+
+      const workflowId = saveResponse.workflow.id;
+      const workflowCodeId = saveResponse.workflow.workflowCode?.[0]?.id || "";
+
+      append({
+        kind: "message",
+        payload: { stage: "save", status: "done", workflowId },
+      });
+
+      // 保存されたワークフローをIDで実行
+      append({ kind: "message", payload: { stage: "run", status: "start" } });
+
+      const res = await clients.workflow.runWorkflow({
+        byId: create(WorkflowSourceByIdSchema, {
+          workflowId,
+          workflowCodeId,
+        }),
+      });
+
+      setRunRes(res);
+      append({ kind: "message", payload: res });
+      append({ kind: "done", payload: { stage: "run" } });
+    } catch (e) {
+      append({ kind: "error", payload: e });
+    }
   }, [latest, append]);
 
   return {

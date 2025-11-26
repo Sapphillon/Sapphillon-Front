@@ -162,8 +162,8 @@ workflow();`,
     }
 
     const workflow = getWorkflowById(request.byId.workflowId);
-    if (!workflow) {
-      throw new ConnectError("Workflow not found", Code.NotFound);
+      if (!workflow) {
+        throw new ConnectError("Workflow not found", Code.NotFound);
     }
 
     // モックの実行結果を返す

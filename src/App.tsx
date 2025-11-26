@@ -7,6 +7,7 @@ import {
   WorkflowRunPage,
   WorkflowsPage,
 } from "@/pages/workflows";
+import { PluginsPage } from "@/pages/plugins";
 import { SettingsPage } from "@/pages/settings";
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/fix" element={<PageBox title="Fix" />} />
         <Route path="/run" element={<PageBox title="Run" />} />
-        <Route path="/plugins" element={<PageBox title="Plugins" />} />
+        <Route path="/plugins" element={<PluginsPage />} />
         <Route path="/about" element={<PageBox title="About" />} />
       </Routes>
     </AppShell>

@@ -24,6 +24,7 @@ import { useWorkflowRun } from "./useWorkflowRun";
 import type { RunEvent } from "./useWorkflowRun";
 
 import { PermissionList } from "@/components/workflow/PermissionList";
+import { useI18n } from "@/hooks/useI18n";
 
 function RunPanel({
     running,
@@ -40,6 +41,7 @@ function RunPanel({
     onRun: () => void;
     latestCode: React.ComponentProps<typeof WorkflowCanvas>["workflow"]["workflowCode"][0] | null;
 }) {
+    const { t } = useI18n();
     return (
         <Flex h="full" gap={4} overflow="hidden">
             {/* Left Side: Execution Panel */}
@@ -59,7 +61,7 @@ function RunPanel({
             >
                 <HStack justify="space-between" flexWrap="wrap" gap={2}>
                     <Text fontWeight="medium" fontSize={{ base: "sm", md: "md" }}>
-                        実行
+                        {t("run.title")}
                     </Text>
                     <HStack gap={2}>
                         <Text
@@ -67,7 +69,7 @@ function RunPanel({
                             color={running ? "blue.500" : runRes ? "green.500" : "fg.muted"}
                             fontWeight="medium"
                         >
-                            {running ? "実行中" : runRes ? "完了" : "待機中"}
+                            {running ? t("run.running") : runRes ? t("run.completed") : t("run.waiting")}
                         </Text>
                         <Button
                             size="sm"
@@ -77,7 +79,7 @@ function RunPanel({
                             colorPalette="floorp"
                         >
                             <LuPlay size={14} />
-                            <Text fontSize={{ base: "xs", sm: "sm" }}>実行</Text>
+                            <Text fontSize={{ base: "xs", sm: "sm" }}>{t("run.title")}</Text>
                         </Button>
                     </HStack>
                 </HStack>
@@ -86,8 +88,8 @@ function RunPanel({
                     {events.length === 0 && !running && !runRes ? (
                         <EmptyState
                             icon={<LuPlay />}
-                            title="ワークフローを実行していません"
-                            description="「実行」ボタンをクリックして、ワークフローを実行してください。"
+                            title={t("run.notExecuted")}
+                            description={t("run.notExecutedDescription")}
                         />
                     ) : (
                         <StreamConsole
@@ -100,12 +102,12 @@ function RunPanel({
 
             {/* Right Side: Permissions Panel */}
             <Box w="320px" borderWidth="1px" rounded="md" bg="bg" p={4} overflowY="auto" display={{ base: "none", xl: "block" }}>
-                <Heading size="sm" mb={4}>Required Permissions</Heading>
+                <Heading size="sm" mb={4}>{t("workflowView.requiredPermissions")}</Heading>
                 {latestCode?.allowedPermissions ? (
                     <PermissionList permissions={latestCode.allowedPermissions} />
                 ) : (
                     <Text fontSize="sm" color="fg.muted">
-                        No permission information available.
+                        {t("workflowView.noPermissionInfo")}
                     </Text>
                 )}
             </Box>
@@ -114,11 +116,12 @@ function RunPanel({
 }
 
 export function WorkflowRunPage() {
+    const { t } = useI18n();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
     const { workflow, loading, error } = useWorkflow(id || "");
-    const { running, events, runRes, runByDefinition, clearEvents } = useWorkflowRun();
+    const { running, events, runRes, runById, clearEvents } = useWorkflowRun();
     const [activeTab, setActiveTab] = React.useState<"workflow" | "run" | "history">("run");
 
     // 戻る先を決定（Home から来た場合は Home に戻る）
@@ -150,9 +153,10 @@ export function WorkflowRunPage() {
         ) {
             hasAutoRunRef.current = true;
             clearEvents();
-            runByDefinition(workflow);
+            const latestCodeId = workflow.workflowCode[workflow.workflowCode.length - 1]?.id;
+            runById(workflow.id, latestCodeId);
         }
-    }, [shouldAutoRun, workflow, loading, running, runByDefinition, clearEvents]);
+    }, [shouldAutoRun, workflow, loading, running, runById, clearEvents]);
 
     const latestCode = React.useMemo(() => {
         if (!workflow?.workflowCode || workflow.workflowCode.length === 0) {
@@ -164,15 +168,16 @@ export function WorkflowRunPage() {
     const handleRun = React.useCallback(() => {
         if (!workflow) return;
         clearEvents();
-        runByDefinition(workflow);
-    }, [workflow, runByDefinition, clearEvents]);
+        const latestCodeId = workflow.workflowCode?.[workflow.workflowCode.length - 1]?.id;
+        runById(workflow.id, latestCodeId);
+    }, [workflow, runById, clearEvents]);
 
     if (loading) {
         return (
             <Flex h="full" align="center" justify="center">
                 <VStack gap={4}>
                     <Spinner size="lg" />
-                    <Text color="fg.muted">ワークフローを読み込み中...</Text>
+                    <Text color="fg.muted">{t("workflowView.loading")}</Text>
                 </VStack>
             </Flex>
         );
@@ -185,7 +190,7 @@ export function WorkflowRunPage() {
                     <Card.Body>
                         <VStack gap={4}>
                             <Text color="red.500" fontWeight="medium">
-                                ワークフローの読み込みに失敗しました
+                                {t("workflowView.errorLoading")}
                             </Text>
                             <Text fontSize="sm" color="fg.muted">
                                 {error instanceof Error
@@ -193,7 +198,7 @@ export function WorkflowRunPage() {
                                     : String(error)}
                             </Text>
                             <Button onClick={() => navigate("/workflows")}>
-                                ワークフロー一覧に戻る
+                                {t("workflowView.backToWorkflows")}
                             </Button>
                         </VStack>
                     </Card.Body>
@@ -224,7 +229,7 @@ export function WorkflowRunPage() {
                         </Button>
                         <VStack align="start" gap={0}>
                             <Heading size="md">
-                                {workflow.displayName || "無題のワークフロー"} - 実行
+                                {workflow.displayName || t("common.untitledWorkflow")} - {t("run.title")}
                             </Heading>
                             {workflow.description && (
                                 <Text fontSize="sm" color="fg.muted">
@@ -249,15 +254,15 @@ export function WorkflowRunPage() {
                     >
                         <Tabs.List borderBottomWidth="1px" flexShrink={0}>
                             <Tabs.Trigger value="workflow" px={4} py={2}>
-                                <Text fontSize="sm">ワークフロー</Text>
+                                <Text fontSize="sm">{t("workflowView.workflow")}</Text>
                             </Tabs.Trigger>
                             <Tabs.Trigger value="run" px={4} py={2}>
-                                <Text fontSize="sm">実行</Text>
+                                <Text fontSize="sm">{t("run.title")}</Text>
                             </Tabs.Trigger>
                             <Tabs.Trigger value="history" px={4} py={2}>
                                 <HStack gap={1}>
                                     <LuHistory size={14} />
-                                    <Text fontSize="sm">実行履歴</Text>
+                                    <Text fontSize="sm">{t("workflowView.executionHistory")}</Text>
                                     {workflow.workflowResults &&
                                         workflow.workflowResults.length > 0 && (
                                             <Box

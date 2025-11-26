@@ -1,22 +1,55 @@
+import React from "react";
 import {
   Badge,
   HStack,
   Input,
   InputGroup,
   Separator,
+  Spinner,
   Text,
   VStack,
 } from "@chakra-ui/react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { LuPackage } from "react-icons/lu";
+import { LuCircleAlert, LuPackage } from "react-icons/lu";
 import { useI18n } from "@/hooks/useI18n";
+import { clients } from "@/lib/grpc-clients";
+import type { PluginPackage } from "@/gen/sapphillon/v1/plugin_pb";
 
 export function PluginsPanel() {
   const { t } = useI18n();
-  const plugins = [
-    { name: "Floorp ", version: "0.0.1", enabled: true },
-    { name: "Fetch", version: "0.0.1", enabled: true },
-  ];
+  const [plugins, setPlugins] = React.useState<PluginPackage[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  React.useEffect(() => {
+    async function fetchPlugins() {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await clients.plugin.listPlugins({ pageSize: 100 });
+        setPlugins(response.plugins);
+      } catch (e) {
+        console.error("Failed to fetch plugins:", e);
+        setError(t("plugins.fetchError"));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPlugins();
+  }, [t]);
+
+  // 検索フィルター
+  const filteredPlugins = React.useMemo(() => {
+    if (!searchQuery.trim()) return plugins;
+    const query = searchQuery.toLowerCase();
+    return plugins.filter(
+      (p) =>
+        p.packageName.toLowerCase().includes(query) ||
+        p.packageId.toLowerCase().includes(query) ||
+        p.description?.toLowerCase().includes(query),
+    );
+  }, [plugins, searchQuery]);
 
   return (
     <VStack
@@ -42,13 +75,32 @@ export function PluginsPanel() {
               placeholder={t("plugins.searchPlaceholder")}
               fontSize={{ base: "xs", sm: "sm" }}
               minH={{ base: "36px", md: "auto" }}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </InputGroup>
         </HStack>
       </HStack>
       <Separator />
       <VStack align="stretch" gap={2} minH={0} overflowY="auto">
-        {plugins.length === 0
+        {loading
+          ? (
+            <HStack justify="center" py={4}>
+              <Spinner size="sm" />
+              <Text fontSize="sm" color="fg.muted">
+                {t("common.loading")}
+              </Text>
+            </HStack>
+          )
+          : error
+          ? (
+            <EmptyState
+              icon={<LuCircleAlert />}
+              title={t("plugins.fetchErrorTitle")}
+              description={error}
+            />
+          )
+          : filteredPlugins.length === 0
           ? (
             <EmptyState
               icon={<LuPackage />}
@@ -57,38 +109,75 @@ export function PluginsPanel() {
             />
           )
           : (
-            plugins.map((plugin) =>
-              pluginItem(plugin.name, plugin.version, plugin.enabled, t)
-            )
+            filteredPlugins.map((plugin) => (
+              <PluginItem key={plugin.packageId} plugin={plugin} t={t} />
+            ))
           )}
       </VStack>
     </VStack>
   );
 }
 
-function pluginItem(name: string, version: string, enabled: boolean, t: (key: string) => string) {
+function PluginItem({
+  plugin,
+  t,
+}: {
+  plugin: PluginPackage;
+  t: (key: string) => string;
+}) {
+  const isDeprecated = plugin.deprecated;
+  const isVerified = plugin.verified;
+  const isInternal = plugin.internalPlugin;
+
   return (
     <HStack
-      key={name}
       justify="space-between"
       borderWidth="1px"
       rounded="md"
       p={{ base: 1.5, md: 2 }}
+      opacity={isDeprecated ? 0.6 : 1}
     >
-      <VStack align="start" gap={0}>
-        <Text fontWeight="medium" fontSize={{ base: "sm", md: "md" }}>
-          {name}
+      <VStack align="start" gap={0} flex={1} minW={0}>
+        <HStack gap={1} flexWrap="wrap">
+          <Text
+            fontWeight="medium"
+            fontSize={{ base: "sm", md: "md" }}
+            truncate
+          >
+            {plugin.packageName}
+          </Text>
+          {isVerified && (
+            <Badge colorPalette="blue" fontSize="2xs" px={1}>
+              {t("plugins.verified")}
+            </Badge>
+          )}
+          {isInternal && (
+            <Badge colorPalette="purple" fontSize="2xs" px={1}>
+              {t("plugins.internal")}
+            </Badge>
+          )}
+        </HStack>
+        <Text fontSize="xs" color="fg.muted">
+          v{plugin.packageVersion}
         </Text>
-        <Text fontSize="xs" color="fg.muted">v{version}</Text>
+        {plugin.description && (
+          <Text fontSize="xs" color="fg.subtle" truncate>
+            {plugin.description}
+          </Text>
+        )}
       </VStack>
-      <HStack gap={3}>
-        <Badge
-          colorPalette={enabled ? "green" : "gray"}
-          fontSize="xs"
-          px={{ base: 1, md: 2 }}
-        >
-          {enabled ? t("plugins.enabled") : t("plugins.disabled")}
-        </Badge>
+      <HStack gap={2} flexShrink={0}>
+        {isDeprecated
+          ? (
+            <Badge colorPalette="orange" fontSize="xs" px={{ base: 1, md: 2 }}>
+              {t("plugins.deprecated")}
+            </Badge>
+          )
+          : (
+            <Badge colorPalette="green" fontSize="xs" px={{ base: 1, md: 2 }}>
+              {t("plugins.enabled")}
+            </Badge>
+          )}
       </HStack>
     </HStack>
   );

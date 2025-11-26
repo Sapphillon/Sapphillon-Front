@@ -84,25 +84,57 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
   );
 
   /**
-   * ワークフロー定義から直接実行（非推奨）
+   * ワークフロー定義から実行
    *
-   * 注意: API v0.9.0 以降、直接ワークフロー定義から実行する機能は削除されました。
-   * ワークフローを実行するには、まず保存してから runById を使用してください。
-   *
-   * @deprecated 代わりに runById を使用してください
+   * ワークフローを保存してからIDで実行します。
    */
   const runByDefinition = React.useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async (_workflow: Workflow) => {
-      append({
-        kind: "error",
-        payload: new Error(
-          "Direct workflow definition execution is no longer supported. " +
-            "Please save the workflow first and use runById instead."
-        ),
-      });
+    async (workflow: Workflow) => {
+      if (running) return;
+      setEvents([]);
+      setRunRes(null);
+      setRunning(true);
+      try {
+        append({ kind: "message", payload: { stage: "save", status: "start" } });
+
+        // ワークフローを保存
+        const saveResponse = await clients.workflow.updateWorkflow({
+          workflow,
+        });
+
+        if (!saveResponse.workflow?.id) {
+          throw new Error("Failed to save workflow: no ID returned");
+        }
+
+        const workflowId = saveResponse.workflow.id;
+        const workflowCodeId =
+          saveResponse.workflow.workflowCode?.[0]?.id || "";
+
+        append({
+          kind: "message",
+          payload: { stage: "save", status: "done", workflowId },
+        });
+
+        // 保存されたワークフローをIDで実行
+        append({ kind: "message", payload: { stage: "run", status: "start" } });
+
+        const res = await clients.workflow.runWorkflow({
+          byId: create(WorkflowSourceByIdSchema, {
+            workflowId,
+            workflowCodeId,
+          }),
+        });
+
+        setRunRes(res);
+        append({ kind: "message", payload: res });
+        append({ kind: "done", payload: { stage: "run" } });
+      } catch (e) {
+        append({ kind: "error", payload: e });
+      } finally {
+        setRunning(false);
+      }
     },
-    [append]
+    [append, running]
   );
 
   const clearEvents = React.useCallback(() => {

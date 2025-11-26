@@ -89,7 +89,7 @@ function WorkflowCard({ workflow }: { workflow: Workflow }) {
   const handleRun = React.useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      navigate(`/workflows/${workflow.id}/run`, {
+      navigate(`/workflows/${workflow.id}`, {
         state: { from: "/home", autoRun: true },
       });
     },

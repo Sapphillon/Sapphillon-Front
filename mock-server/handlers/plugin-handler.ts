@@ -17,7 +17,7 @@ export const pluginHandler: ServiceImpl<typeof PluginService> = {
    */
   async listPlugins(request: ListPluginsRequest): Promise<ListPluginsResponse> {
     console.log("[PluginService] listPlugins called", request);
-    let plugins = getPlugins();
+    const plugins = getPlugins();
 
     // ページネーション
     const pageSize = request.pageSize || 10;
@@ -34,4 +34,3 @@ export const pluginHandler: ServiceImpl<typeof PluginService> = {
     });
   },
 };
-

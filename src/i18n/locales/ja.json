@@ -5,6 +5,7 @@
         "error": "エラー",
         "done": "完了",
         "info": "情報",
+        "loading": "読み込み中...",
         "execute": "実行",
         "generate": "生成",
         "workflows": "ワークフロー",
@@ -165,7 +166,9 @@
         "medium": "中",
         "high": "高",
         "critical": "重要",
-        "low": "低"
+        "low": "低",
+        "requiredPermissions": "必要な権限",
+        "noPermissionInfo": "権限情報がありません"
     },
     "generate": {
         "workflow": "ワークフロー",
@@ -351,7 +354,26 @@
         "emptyDescription": "プラグインをインストールして、ワークフローで使用できるようにしましょう。",
         "searchPlaceholder": "プラグインを検索...",
         "enabled": "有効",
-        "disabled": "無効"
+        "disabled": "無効",
+        "verified": "認証済み",
+        "internal": "内部",
+        "deprecated": "非推奨",
+        "fetchError": "プラグインの取得に失敗しました",
+        "fetchErrorTitle": "読み込みエラー"
+    },
+    "pluginsPage": {
+        "title": "プラグイン管理",
+        "description": "インストール済みのプラグインを管理します",
+        "refresh": "更新",
+        "functions": "関数",
+        "viewDetails": "詳細",
+        "noSearchResults": "検索結果が見つかりません",
+        "stats": {
+            "total": "合計",
+            "verified": "認証済み",
+            "internal": "内部",
+            "deprecated": "非推奨"
+        }
     },
     "templates": {
         "title": "プロンプトテンプレート",

@@ -5,6 +5,7 @@
     "error": "Error",
     "done": "Done",
     "info": "Info",
+    "loading": "Loading...",
     "execute": "Execute",
     "generate": "Generate",
     "workflows": "Workflows",
@@ -168,7 +169,9 @@
     "medium": "Medium",
     "high": "High",
     "critical": "Critical",
-    "low": "Low"
+    "low": "Low",
+    "requiredPermissions": "Required Permissions",
+    "noPermissionInfo": "No permission information available"
   },
   "generate": {
     "workflow": "Workflow",
@@ -353,8 +356,27 @@
     "emptyTitle": "No plugins",
     "emptyDescription": "Install plugins to use them in workflows.",
     "searchPlaceholder": "Search plugins…",
-    "enabled": "enabled",
-    "disabled": "disabled"
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "verified": "Verified",
+    "internal": "Internal",
+    "deprecated": "Deprecated",
+    "fetchError": "Failed to fetch plugins",
+    "fetchErrorTitle": "Loading Error"
+  },
+  "pluginsPage": {
+    "title": "Plugin Management",
+    "description": "Manage installed plugins",
+    "refresh": "Refresh",
+    "functions": "Functions",
+    "viewDetails": "Details",
+    "noSearchResults": "No search results found",
+    "stats": {
+      "total": "Total",
+      "verified": "Verified",
+      "internal": "Internal",
+      "deprecated": "Deprecated"
+    }
   },
   "templates": {
     "title": "Prompt Templates",
