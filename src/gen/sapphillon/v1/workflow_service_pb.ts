@@ -495,14 +495,14 @@ export const OrderByDirectionSchema: GenEnum<OrderByDirection> = /*@__PURE__*/
 export const WorkflowService: GenService<{
   /**
    * Generates a workflow from a natural language prompt.
-   *
+   * 
    * Behavior:
    * - Server-streaming RPC that emits partial or incremental workflow definitions.
    * - The client should read until the stream completes to obtain the final definition.
-   *
+   * 
    * Responses:
    * - Each message may represent a partial draft or an updated full definition.
-   *
+   * 
    * Errors:
    * - INVALID_ARGUMENT if the prompt is empty or malformed.
    * - INTERNAL for unexpected generation errors.
@@ -516,11 +516,11 @@ export const WorkflowService: GenService<{
   },
   /**
    * Fixes an existing workflow definition using a description of issues.
-   *
+   * 
    * Behavior:
    * - Server-streaming RPC that emits suggested fixes and updated definitions incrementally.
    * - The final message in the stream typically represents the fully fixed definition.
-   *
+   * 
    * Errors:
    * - INVALID_ARGUMENT if workflow_definition or description is empty.
    * - FAILED_PRECONDITION if the definition cannot be parsed.

@@ -10,6 +10,8 @@ import type { PluginPackage } from "@/gen/sapphillon/v1/plugin_pb";
 import {
   PluginPackageSchema,
   PluginFunctionSchema,
+  FunctionDefineSchema,
+  FunctionParameterSchema,
 } from "@/gen/sapphillon/v1/plugin_pb";
 import {
   PermissionSchema,
@@ -52,21 +54,36 @@ export function initializeMockData() {
             functionId: "send_email",
             functionName: "メール送信",
             description: "メールを送信します",
-            arguments: JSON.stringify({
-              type: "object",
-              properties: {
-                to: { type: "string", description: "送信先メールアドレス" },
-                subject: { type: "string", description: "メール件名" },
-                body: { type: "string", description: "メール本文" },
-              },
-              required: ["to", "subject", "body"],
-            }),
-            returns: JSON.stringify({
-              type: "object",
-              properties: {
-                success: { type: "boolean" },
-                messageId: { type: "string" },
-              },
+            functionDefine: create(FunctionDefineSchema, {
+              parameters: [
+                create(FunctionParameterSchema, {
+                  name: "to",
+                  type: "string",
+                  description: "送信先メールアドレス",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "subject",
+                  type: "string",
+                  description: "メール件名",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "body",
+                  type: "string",
+                  description: "メール本文",
+                }),
+              ],
+              returns: [
+                create(FunctionParameterSchema, {
+                  name: "success",
+                  type: "boolean",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "messageId",
+                  type: "string",
+                  description: "",
+                }),
+              ],
             }),
             permissions: [
               create(PermissionSchema, {
@@ -82,20 +99,31 @@ export function initializeMockData() {
             functionId: "send_slack",
             functionName: "Slack通知",
             description: "Slackチャンネルにメッセージを送信します",
-            arguments: JSON.stringify({
-              type: "object",
-              properties: {
-                channel: { type: "string", description: "Slackチャンネル名" },
-                message: { type: "string", description: "送信メッセージ" },
-              },
-              required: ["channel", "message"],
-            }),
-            returns: JSON.stringify({
-              type: "object",
-              properties: {
-                success: { type: "boolean" },
-                ts: { type: "string", description: "メッセージタイムスタンプ" },
-              },
+            functionDefine: create(FunctionDefineSchema, {
+              parameters: [
+                create(FunctionParameterSchema, {
+                  name: "channel",
+                  type: "string",
+                  description: "Slackチャンネル名",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "message",
+                  type: "string",
+                  description: "送信メッセージ",
+                }),
+              ],
+              returns: [
+                create(FunctionParameterSchema, {
+                  name: "success",
+                  type: "boolean",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "ts",
+                  type: "string",
+                  description: "メッセージタイムスタンプ",
+                }),
+              ],
             }),
             permissions: [
               create(PermissionSchema, {
@@ -130,24 +158,31 @@ export function initializeMockData() {
             functionId: "read_file",
             functionName: "ファイル読み込み",
             description: "ファイルを読み込みます",
-            arguments: JSON.stringify({
-              type: "object",
-              properties: {
-                path: { type: "string", description: "ファイルパス" },
-                encoding: {
+            functionDefine: create(FunctionDefineSchema, {
+              parameters: [
+                create(FunctionParameterSchema, {
+                  name: "path",
                   type: "string",
-                  description: "エンコーディング",
-                  default: "utf-8",
-                },
-              },
-              required: ["path"],
-            }),
-            returns: JSON.stringify({
-              type: "object",
-              properties: {
-                content: { type: "string" },
-                size: { type: "number" },
-              },
+                  description: "ファイルパス",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "encoding",
+                  type: "string",
+                  description: "エンコーディング (default: utf-8)",
+                }),
+              ],
+              returns: [
+                create(FunctionParameterSchema, {
+                  name: "content",
+                  type: "string",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "size",
+                  type: "number",
+                  description: "",
+                }),
+              ],
             }),
             permissions: [
               create(PermissionSchema, {
@@ -163,25 +198,36 @@ export function initializeMockData() {
             functionId: "write_file",
             functionName: "ファイル書き込み",
             description: "ファイルに書き込みます",
-            arguments: JSON.stringify({
-              type: "object",
-              properties: {
-                path: { type: "string", description: "ファイルパス" },
-                content: { type: "string", description: "書き込む内容" },
-                encoding: {
+            functionDefine: create(FunctionDefineSchema, {
+              parameters: [
+                create(FunctionParameterSchema, {
+                  name: "path",
                   type: "string",
-                  description: "エンコーディング",
-                  default: "utf-8",
-                },
-              },
-              required: ["path", "content"],
-            }),
-            returns: JSON.stringify({
-              type: "object",
-              properties: {
-                success: { type: "boolean" },
-                bytesWritten: { type: "number" },
-              },
+                  description: "ファイルパス",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "content",
+                  type: "string",
+                  description: "書き込む内容",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "encoding",
+                  type: "string",
+                  description: "エンコーディング (default: utf-8)",
+                }),
+              ],
+              returns: [
+                create(FunctionParameterSchema, {
+                  name: "success",
+                  type: "boolean",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "bytesWritten",
+                  type: "number",
+                  description: "",
+                }),
+              ],
             }),
             permissions: [
               create(PermissionSchema, {
@@ -215,28 +261,51 @@ export function initializeMockData() {
             functionId: "fetch",
             functionName: "HTTPリクエスト",
             description: "HTTPリクエストを送信します",
-            arguments: JSON.stringify({
-              type: "object",
-              properties: {
-                url: { type: "string", description: "リクエストURL" },
-                method: {
+            functionDefine: create(FunctionDefineSchema, {
+              parameters: [
+                create(FunctionParameterSchema, {
+                  name: "url",
                   type: "string",
-                  description: "HTTPメソッド",
-                  default: "GET",
-                },
-                headers: { type: "object", description: "リクエストヘッダー" },
-                body: { type: "string", description: "リクエストボディ" },
-              },
-              required: ["url"],
-            }),
-            returns: JSON.stringify({
-              type: "object",
-              properties: {
-                status: { type: "number" },
-                statusText: { type: "string" },
-                headers: { type: "object" },
-                body: { type: "string" },
-              },
+                  description: "リクエストURL",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "method",
+                  type: "string",
+                  description: "HTTPメソッド (default: GET)",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "headers",
+                  type: "object",
+                  description: "リクエストヘッダー",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "body",
+                  type: "string",
+                  description: "リクエストボディ",
+                }),
+              ],
+              returns: [
+                create(FunctionParameterSchema, {
+                  name: "status",
+                  type: "number",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "statusText",
+                  type: "string",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "headers",
+                  type: "object",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "body",
+                  type: "string",
+                  description: "",
+                }),
+              ],
             }),
             permissions: [
               create(PermissionSchema, {
@@ -271,20 +340,31 @@ export function initializeMockData() {
             functionId: "query",
             functionName: "データベースクエリ",
             description: "SQLクエリを実行します",
-            arguments: JSON.stringify({
-              type: "object",
-              properties: {
-                sql: { type: "string", description: "SQLクエリ" },
-                params: { type: "array", description: "パラメータ" },
-              },
-              required: ["sql"],
-            }),
-            returns: JSON.stringify({
-              type: "object",
-              properties: {
-                rows: { type: "array" },
-                rowCount: { type: "number" },
-              },
+            functionDefine: create(FunctionDefineSchema, {
+              parameters: [
+                create(FunctionParameterSchema, {
+                  name: "sql",
+                  type: "string",
+                  description: "SQLクエリ",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "params",
+                  type: "array",
+                  description: "パラメータ",
+                }),
+              ],
+              returns: [
+                create(FunctionParameterSchema, {
+                  name: "rows",
+                  type: "array",
+                  description: "",
+                }),
+                create(FunctionParameterSchema, {
+                  name: "rowCount",
+                  type: "number",
+                  description: "",
+                }),
+              ],
             }),
             permissions: [
               create(PermissionSchema, {

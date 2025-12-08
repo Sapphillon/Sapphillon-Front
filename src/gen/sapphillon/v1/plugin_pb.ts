@@ -28,24 +28,123 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file sapphillon/v1/plugin.proto.
  */
 export const file_sapphillon_v1_plugin: GenFile = /*@__PURE__*/
-  fileDesc("ChpzYXBwaGlsbG9uL3YxL3BsdWdpbi5wcm90bxINc2FwcGhpbGxvbi52MSKlAQoOUGx1Z2luRnVuY3Rpb24SEwoLZnVuY3Rpb25faWQYASABKAkSFQoNZnVuY3Rpb25fbmFtZRgCIAEoCRITCgtkZXNjcmlwdGlvbhgDIAEoCRIuCgtwZXJtaXNzaW9ucxgEIAMoCzIZLnNhcHBoaWxsb24udjEuUGVybWlzc2lvbhIRCglhcmd1bWVudHMYBSABKAkSDwoHcmV0dXJucxgGIAEoCSKTAwoNUGx1Z2luUGFja2FnZRISCgpwYWNrYWdlX2lkGAEgASgJEhQKDHBhY2thZ2VfbmFtZRgCIAEoCRIXCg9wYWNrYWdlX3ZlcnNpb24YAyABKAkSEwoLZGVzY3JpcHRpb24YBCABKAkSMAoJZnVuY3Rpb25zGAUgAygLMh0uc2FwcGhpbGxvbi52MS5QbHVnaW5GdW5jdGlvbhIYChBwbHVnaW5fc3RvcmVfdXJsGAYgASgJEhwKD2ludGVybmFsX3BsdWdpbhgHIAEoCEgAiAEBEhUKCHZlcmlmaWVkGAggASgISAGIAQESFwoKZGVwcmVjYXRlZBgJIAEoCEgCiAEBEjAKDGluc3RhbGxlZF9hdBgKIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLgoKdXBkYXRlZF9hdBgLIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXBCEgoQX2ludGVybmFsX3BsdWdpbkILCglfdmVyaWZpZWRCDQoLX2RlcHJlY2F0ZWRiBnByb3RvMw", [file_google_protobuf_timestamp, file_sapphillon_v1_permission]);
+  fileDesc("ChpzYXBwaGlsbG9uL3YxL3BsdWdpbi5wcm90bxINc2FwcGhpbGxvbi52MSJEChFGdW5jdGlvblBhcmFtZXRlchIMCgRuYW1lGAEgASgJEgwKBHR5cGUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkieQoORnVuY3Rpb25EZWZpbmUSNAoKcGFyYW1ldGVycxgBIAMoCzIgLnNhcHBoaWxsb24udjEuRnVuY3Rpb25QYXJhbWV0ZXISMQoHcmV0dXJucxgCIAMoCzIgLnNhcHBoaWxsb24udjEuRnVuY3Rpb25QYXJhbWV0ZXIi2QEKDlBsdWdpbkZ1bmN0aW9uEhMKC2Z1bmN0aW9uX2lkGAEgASgJEhUKDWZ1bmN0aW9uX25hbWUYAiABKAkSEwoLZGVzY3JpcHRpb24YAyABKAkSLgoLcGVybWlzc2lvbnMYBCADKAsyGS5zYXBwaGlsbG9uLnYxLlBlcm1pc3Npb24SNgoPZnVuY3Rpb25fZGVmaW5lGAcgASgLMh0uc2FwcGhpbGxvbi52MS5GdW5jdGlvbkRlZmluZUoECAUQBkoECAYQB1IJYXJndW1lbnRzUgdyZXR1cm5zIpMDCg1QbHVnaW5QYWNrYWdlEhIKCnBhY2thZ2VfaWQYASABKAkSFAoMcGFja2FnZV9uYW1lGAIgASgJEhcKD3BhY2thZ2VfdmVyc2lvbhgDIAEoCRITCgtkZXNjcmlwdGlvbhgEIAEoCRIwCglmdW5jdGlvbnMYBSADKAsyHS5zYXBwaGlsbG9uLnYxLlBsdWdpbkZ1bmN0aW9uEhgKEHBsdWdpbl9zdG9yZV91cmwYBiABKAkSHAoPaW50ZXJuYWxfcGx1Z2luGAcgASgISACIAQESFQoIdmVyaWZpZWQYCCABKAhIAYgBARIXCgpkZXByZWNhdGVkGAkgASgISAKIAQESMAoMaW5zdGFsbGVkX2F0GAogASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIuCgp1cGRhdGVkX2F0GAsgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcEISChBfaW50ZXJuYWxfcGx1Z2luQgsKCV92ZXJpZmllZEINCgtfZGVwcmVjYXRlZGIGcHJvdG8z", [file_google_protobuf_timestamp, file_sapphillon_v1_permission]);
+
+/**
+ * Represents a single parameter (argument or return value) of a function.
+ * Stores the variable name, type, and description similar to JSDoc @param or @returns.
+ * 
+ * Fields:
+ * - name: The variable name of the parameter.
+ * - type: The type of the parameter (e.g., "string", "number", "object").
+ * - description: A short description of what the parameter represents.
+ * 
+ * Example:
+ *   FunctionParameter {
+ *     name: "userId"
+ *     type: "string"
+ *     description: "The unique identifier of the user"
+ *   }
+ *
+ * @generated from message sapphillon.v1.FunctionParameter
+ */
+export type FunctionParameter = Message<"sapphillon.v1.FunctionParameter"> & {
+  /**
+   * The variable name of the parameter.
+   * Example: "userId", "message", "options".
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * The type of the parameter.
+   * Example: "string", "number", "boolean", "object", "Array<string>".
+   *
+   * @generated from field: string type = 2;
+   */
+  type: string;
+
+  /**
+   * A short description of what the parameter represents.
+   *
+   * @generated from field: string description = 3;
+   */
+  description: string;
+};
+
+/**
+ * Describes the message sapphillon.v1.FunctionParameter.
+ * Use `create(FunctionParameterSchema)` to create a new message.
+ */
+export const FunctionParameterSchema: GenMessage<FunctionParameter> = /*@__PURE__*/
+  messageDesc(file_sapphillon_v1_plugin, 0);
+
+/**
+ * Represents the function definition including JSDoc-style documentation.
+ * Stores the function parameters and return value information.
+ * 
+ * Fields:
+ * - parameters: The list of function parameters (arguments).
+ * - returns: The return value information.
+ * 
+ * Example:
+ *   FunctionDefine {
+ *     parameters: [
+ *       { name: "channelId", type: "string", description: "Target channel ID" },
+ *       { name: "message", type: "string", description: "Message content" }
+ *     ]
+ *     returns: [{ name: "result", type: "boolean", description: "True if sent successfully" }]
+ *   }
+ *
+ * @generated from message sapphillon.v1.FunctionDefine
+ */
+export type FunctionDefine = Message<"sapphillon.v1.FunctionDefine"> & {
+  /**
+   * The list of function parameters (arguments).
+   * Order should match the function signature.
+   *
+   * @generated from field: repeated sapphillon.v1.FunctionParameter parameters = 1;
+   */
+  parameters: FunctionParameter[];
+
+  /**
+   * The return value(s) information. Optional: may be empty for void functions.
+   * Multiple return values are supported (e.g., for tuple-like returns).
+   *
+   * @generated from field: repeated sapphillon.v1.FunctionParameter returns = 2;
+   */
+  returns: FunctionParameter[];
+};
+
+/**
+ * Describes the message sapphillon.v1.FunctionDefine.
+ * Use `create(FunctionDefineSchema)` to create a new message.
+ */
+export const FunctionDefineSchema: GenMessage<FunctionDefine> = /*@__PURE__*/
+  messageDesc(file_sapphillon_v1_plugin, 1);
 
 /**
  * Describes a callable function exposed by a plugin.
  * A function declares its purpose, identity, and required permissions for execution.
- *
+ * 
  * Fields:
  * - function_id: Stable unique identifier used by systems to reference the function.
  * - function_name: Human-friendly name suitable for UIs.
  * - description: Summary of what the function does and typical use cases.
  * - permissions: Permissions required for the caller to execute this function.
- *
+ * - function_define: JSDoc-style definition with parameters and return value.
+ * 
  * Example:
  *   PluginFunction {
  *     function_id: "send_notification"
  *     function_name: "Send Notification"
  *     description: "Sends a message to a configured channel"
  *     permissions: [{ permission_type: PERMISSION_TYPE_EXECUTE, resource: ["channels/general"] }]
+ *     function_define: {
+ *       parameters: [{ name: "channelId", type: "string", description: "Target channel" }]
+ *       returns: [{ name: "success", type: "boolean", description: "True if sent" }]
+ *     }
  *   }
  *
  * @generated from message sapphillon.v1.PluginFunction
@@ -83,18 +182,12 @@ export type PluginFunction = Message<"sapphillon.v1.PluginFunction"> & {
   permissions: Permission[];
 
   /**
-   * Arguments of the function, described in JSON Schema format.
+   * JSDoc-style function definition with parameters and return value.
+   * Contains structured information about function arguments and return type.
    *
-   * @generated from field: string arguments = 5;
+   * @generated from field: sapphillon.v1.FunctionDefine function_define = 7;
    */
-  arguments: string;
-
-  /**
-   * Return value of the function, described in JSON Schema format.
-   *
-   * @generated from field: string returns = 6;
-   */
-  returns: string;
+  functionDefine?: FunctionDefine;
 };
 
 /**
@@ -102,12 +195,12 @@ export type PluginFunction = Message<"sapphillon.v1.PluginFunction"> & {
  * Use `create(PluginFunctionSchema)` to create a new message.
  */
 export const PluginFunctionSchema: GenMessage<PluginFunction> = /*@__PURE__*/
-  messageDesc(file_sapphillon_v1_plugin, 0);
+  messageDesc(file_sapphillon_v1_plugin, 2);
 
 /**
  * Represents a plugin package that can be installed into the platform.
  * A plugin groups one or more functions and includes metadata useful for discovery and governance.
- *
+ * 
  * Fields:
  * - package_id: Stable unique identifier of the plugin package.
  * - package_name: Human-friendly name of the plugin.
@@ -117,11 +210,11 @@ export const PluginFunctionSchema: GenMessage<PluginFunction> = /*@__PURE__*/
  * - plugin_store_url: URL to the plugin page or documentation.
  * - internal_plugin: Indicates whether the plugin is internal-only.
  * - verified: Indicates whether the plugin is verified by the platform.
- *
+ * 
  * - deprecated: Indicates whether the plugin is deprecated and should not be used for new workflows.
  * - installed_at: Time when the plugin was installed.
  * - updated_at: Time when the plugin was last updated.
- *
+ * 
  * Example:
  *   PluginPackage {
  *     package_id: "com.example.notifications"
@@ -226,5 +319,5 @@ export type PluginPackage = Message<"sapphillon.v1.PluginPackage"> & {
  * Use `create(PluginPackageSchema)` to create a new message.
  */
 export const PluginPackageSchema: GenMessage<PluginPackage> = /*@__PURE__*/
-  messageDesc(file_sapphillon_v1_plugin, 1);
+  messageDesc(file_sapphillon_v1_plugin, 3);
 
