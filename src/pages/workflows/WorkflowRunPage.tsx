@@ -39,7 +39,11 @@ function RunPanel({
     workflow: React.ComponentProps<typeof WorkflowCanvas>["workflow"] | null;
     runRes: ReturnType<typeof useWorkflowRun>["runRes"];
     onRun: () => void;
-    latestCode: React.ComponentProps<typeof WorkflowCanvas>["workflow"]["workflowCode"][0] | null;
+    latestCode:
+        | React.ComponentProps<
+            typeof WorkflowCanvas
+        >["workflow"]["workflowCode"][0]
+        | null;
 }) {
     const { t } = useI18n();
     return (
@@ -60,16 +64,27 @@ function RunPanel({
                 overflow="hidden"
             >
                 <HStack justify="space-between" flexWrap="wrap" gap={2}>
-                    <Text fontWeight="medium" fontSize={{ base: "sm", md: "md" }}>
+                    <Text
+                        fontWeight="medium"
+                        fontSize={{ base: "sm", md: "md" }}
+                    >
                         {t("run.title")}
                     </Text>
                     <HStack gap={2}>
                         <Text
                             fontSize="xs"
-                            color={running ? "blue.500" : runRes ? "green.500" : "fg.muted"}
+                            color={running
+                                ? "blue.500"
+                                : runRes
+                                ? "green.500"
+                                : "fg.muted"}
                             fontWeight="medium"
                         >
-                            {running ? t("run.running") : runRes ? t("run.completed") : t("run.waiting")}
+                            {running
+                                ? t("run.running")
+                                : runRes
+                                ? t("run.completed")
+                                : t("run.waiting")}
                         </Text>
                         <Button
                             size="sm"
@@ -79,37 +94,55 @@ function RunPanel({
                             colorPalette="floorp"
                         >
                             <LuPlay size={14} />
-                            <Text fontSize={{ base: "xs", sm: "sm" }}>{t("run.title")}</Text>
+                            <Text fontSize={{ base: "xs", sm: "sm" }}>
+                                {t("run.title")}
+                            </Text>
                         </Button>
                     </HStack>
                 </HStack>
                 <Separator my={{ base: 1, md: 2 }} />
                 <Box minH={0} h="full" overflow="hidden">
-                    {events.length === 0 && !running && !runRes ? (
-                        <EmptyState
-                            icon={<LuPlay />}
-                            title={t("run.notExecuted")}
-                            description={t("run.notExecutedDescription")}
-                        />
-                    ) : (
-                        <StreamConsole
-                            events={events as GenerationEvent[]}
-                            streaming={running}
-                        />
-                    )}
+                    {events.length === 0 && !running && !runRes
+                        ? (
+                            <EmptyState
+                                icon={<LuPlay />}
+                                title={t("run.notExecuted")}
+                                description={t("run.notExecutedDescription")}
+                            />
+                        )
+                        : (
+                            <StreamConsole
+                                events={events as GenerationEvent[]}
+                                streaming={running}
+                            />
+                        )}
                 </Box>
             </VStack>
 
             {/* Right Side: Permissions Panel */}
-            <Box w="320px" borderWidth="1px" rounded="md" bg="bg" p={4} overflowY="auto" display={{ base: "none", xl: "block" }}>
-                <Heading size="sm" mb={4}>{t("workflowView.requiredPermissions")}</Heading>
-                {latestCode?.allowedPermissions ? (
-                    <PermissionList permissions={latestCode.allowedPermissions} />
-                ) : (
-                    <Text fontSize="sm" color="fg.muted">
-                        {t("workflowView.noPermissionInfo")}
-                    </Text>
-                )}
+            <Box
+                w="320px"
+                borderWidth="1px"
+                rounded="md"
+                bg="bg"
+                p={4}
+                overflowY="auto"
+                display={{ base: "none", xl: "block" }}
+            >
+                <Heading size="sm" mb={4}>
+                    {t("workflowView.requiredPermissions")}
+                </Heading>
+                {latestCode?.allowedPermissions
+                    ? (
+                        <PermissionList
+                            permissions={latestCode.allowedPermissions}
+                        />
+                    )
+                    : (
+                        <Text fontSize="sm" color="fg.muted">
+                            {t("workflowView.noPermissionInfo")}
+                        </Text>
+                    )}
             </Box>
         </Flex>
     );
@@ -122,11 +155,15 @@ export function WorkflowRunPage() {
     const location = useLocation();
     const { workflow, loading, error } = useWorkflow(id || "");
     const { running, events, runRes, runById, clearEvents } = useWorkflowRun();
-    const [activeTab, setActiveTab] = React.useState<"workflow" | "run" | "history">("run");
+    const [activeTab, setActiveTab] = React.useState<
+        "workflow" | "run" | "history"
+    >("run");
 
     // 戻る先を決定（Home から来た場合は Home に戻る）
     const backPath = React.useMemo(() => {
-        const state = location.state as { from?: string; autoRun?: boolean } | null;
+        const state = location.state as
+            | { from?: string; autoRun?: boolean }
+            | null;
         if (state?.from === "/home") {
             return "/home";
         }
@@ -153,8 +190,9 @@ export function WorkflowRunPage() {
         ) {
             hasAutoRunRef.current = true;
             clearEvents();
-            const latestCodeId = workflow.workflowCode[workflow.workflowCode.length - 1]?.id;
-            runById(workflow.id, latestCodeId);
+            const latestCodeId = workflow
+                .workflowCode[workflow.workflowCode.length - 1]?.id;
+            runById(workflow.id, latestCodeId, workflow);
         }
     }, [shouldAutoRun, workflow, loading, running, runById, clearEvents]);
 
@@ -168,8 +206,9 @@ export function WorkflowRunPage() {
     const handleRun = React.useCallback(() => {
         if (!workflow) return;
         clearEvents();
-        const latestCodeId = workflow.workflowCode?.[workflow.workflowCode.length - 1]?.id;
-        runById(workflow.id, latestCodeId);
+        const latestCodeId = workflow.workflowCode
+            ?.[workflow.workflowCode.length - 1]?.id;
+        runById(workflow.id, latestCodeId, workflow);
     }, [workflow, runById, clearEvents]);
 
     if (loading) {
@@ -229,7 +268,9 @@ export function WorkflowRunPage() {
                         </Button>
                         <VStack align="start" gap={0}>
                             <Heading size="md">
-                                {workflow.displayName || t("common.untitledWorkflow")} - {t("run.title")}
+                                {workflow.displayName ||
+                                    t("common.untitledWorkflow")} -{" "}
+                                {t("run.title")}
                             </Heading>
                             {workflow.description && (
                                 <Text fontSize="sm" color="fg.muted">
@@ -247,14 +288,18 @@ export function WorkflowRunPage() {
                     <Tabs.Root
                         value={activeTab}
                         onValueChange={(e) =>
-                            setActiveTab(e.value as "workflow" | "run" | "history")}
+                            setActiveTab(
+                                e.value as "workflow" | "run" | "history",
+                            )}
                         h="full"
                         display="flex"
                         flexDirection="column"
                     >
                         <Tabs.List borderBottomWidth="1px" flexShrink={0}>
                             <Tabs.Trigger value="workflow" px={4} py={2}>
-                                <Text fontSize="sm">{t("workflowView.workflow")}</Text>
+                                <Text fontSize="sm">
+                                    {t("workflowView.workflow")}
+                                </Text>
                             </Tabs.Trigger>
                             <Tabs.Trigger value="run" px={4} py={2}>
                                 <Text fontSize="sm">{t("run.title")}</Text>
@@ -262,22 +307,24 @@ export function WorkflowRunPage() {
                             <Tabs.Trigger value="history" px={4} py={2}>
                                 <HStack gap={1}>
                                     <LuHistory size={14} />
-                                    <Text fontSize="sm">{t("workflowView.executionHistory")}</Text>
+                                    <Text fontSize="sm">
+                                        {t("workflowView.executionHistory")}
+                                    </Text>
                                     {workflow.workflowResults &&
                                         workflow.workflowResults.length > 0 && (
-                                            <Box
-                                                as="span"
-                                                px={1.5}
-                                                py={0.5}
-                                                rounded="full"
-                                                bg="blue.500"
-                                                color="white"
-                                                fontSize="2xs"
-                                                fontWeight="medium"
-                                            >
-                                                {workflow.workflowResults.length}
-                                            </Box>
-                                        )}
+                                        <Box
+                                            as="span"
+                                            px={1.5}
+                                            py={0.5}
+                                            rounded="full"
+                                            bg="blue.500"
+                                            color="white"
+                                            fontSize="2xs"
+                                            fontWeight="medium"
+                                        >
+                                            {workflow.workflowResults.length}
+                                        </Box>
+                                    )}
                                 </HStack>
                             </Tabs.Trigger>
                         </Tabs.List>
@@ -289,11 +336,19 @@ export function WorkflowRunPage() {
                             p={0}
                         >
                             <Box h="full" overflow="auto" p={4}>
-                                <WorkflowCanvas workflow={workflow} withBackground={true} />
+                                <WorkflowCanvas
+                                    workflow={workflow}
+                                    withBackground={true}
+                                />
                             </Box>
                         </Tabs.Content>
 
-                        <Tabs.Content value="run" flex="1" overflow="auto" p={4}>
+                        <Tabs.Content
+                            value="run"
+                            flex="1"
+                            overflow="auto"
+                            p={4}
+                        >
                             <RunPanel
                                 running={running}
                                 events={events}
@@ -304,7 +359,12 @@ export function WorkflowRunPage() {
                             />
                         </Tabs.Content>
 
-                        <Tabs.Content value="history" flex="1" overflow="auto" p={4}>
+                        <Tabs.Content
+                            value="history"
+                            flex="1"
+                            overflow="auto"
+                            p={4}
+                        >
                             <WorkflowExecutionTimeline
                                 results={workflow.workflowResults || []}
                             />
@@ -315,4 +375,3 @@ export function WorkflowRunPage() {
         </Flex>
     );
 }
-

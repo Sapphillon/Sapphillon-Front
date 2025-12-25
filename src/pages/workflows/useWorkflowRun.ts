@@ -13,6 +13,13 @@ import {
 } from "@/gen/sapphillon/v1/workflow_service_pb";
 import type { Workflow } from "@/gen/sapphillon/v1/workflow_pb";
 import { create } from "@bufbuild/protobuf";
+import {
+  parseWorkflowSteps,
+  notifyWorkflowStart,
+  notifyWorkflowComplete,
+  notifyWorkflowError,
+  type WorkflowProgressStep,
+} from "@/lib/workflow-progress";
 
 /**
  * ワークフロー実行中のイベント
@@ -37,11 +44,26 @@ export interface UseWorkflowRunReturn {
   /** ワークフロー実行結果 */
   runRes: RunWorkflowResponse | null;
   /** ワークフローを実行（ID指定） */
-  runById: (workflowId: string, workflowCodeId?: string) => Promise<void>;
+  runById: (
+    workflowId: string,
+    workflowCodeId?: string,
+    workflow?: Workflow
+  ) => Promise<void>;
   /** ワークフローを実行（定義指定） */
   runByDefinition: (workflow: Workflow) => Promise<void>;
   /** イベントログをクリア */
   clearEvents: () => void;
+}
+
+/**
+ * ワークフローからプラグイン関数 ID を取得
+ */
+function getPluginFunctionIds(workflow?: Workflow): string[] {
+  if (!workflow?.workflowCode || workflow.workflowCode.length === 0) {
+    return [];
+  }
+  const latestCode = workflow.workflowCode[workflow.workflowCode.length - 1];
+  return latestCode?.pluginFunctionIds || [];
 }
 
 /**
@@ -61,11 +83,33 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
   }, []);
 
   const runById = React.useCallback(
-    async (workflowId: string, workflowCodeId?: string) => {
-      if (running) return;
+    async (
+      workflowId: string,
+      workflowCodeId?: string,
+      workflow?: Workflow
+    ) => {
+      if (running) {
+        return;
+      }
       setEvents([]);
       setRunRes(null);
       setRunning(true);
+
+      // 進捗ウィンドウ用のステップを生成
+      const pluginFunctionIds = getPluginFunctionIds(workflow);
+      let steps: WorkflowProgressStep[] = parseWorkflowSteps(pluginFunctionIds);
+      const workflowName = workflow?.displayName || "Workflow";
+
+      // 進捗開始を通知
+      if (steps.length > 0) {
+        steps = steps.map((step, index) => ({
+          ...step,
+          status: index === 0 ? "running" : "pending",
+          startedAt: index === 0 ? Date.now() : undefined,
+        }));
+        notifyWorkflowStart(workflowId, workflowName, steps);
+      }
+
       try {
         append({ kind: "message", payload: { stage: "run", status: "start" } });
         const res = await clients.workflow.runWorkflow({
@@ -77,8 +121,31 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
         setRunRes(res);
         append({ kind: "message", payload: res });
         append({ kind: "done", payload: { stage: "run" } });
+
+        // 進捗完了を通知
+        if (steps.length > 0) {
+          steps = steps.map((step) => ({
+            ...step,
+            status: "completed" as const,
+            completedAt: Date.now(),
+          }));
+          notifyWorkflowComplete(workflowId, steps);
+        }
       } catch (e) {
         append({ kind: "error", payload: e });
+
+        // 進捗エラーを通知
+        if (steps.length > 0) {
+          const currentIndex = steps.findIndex((s) => s.status === "running");
+          if (currentIndex >= 0) {
+            steps[currentIndex].status = "error";
+          }
+          notifyWorkflowError(
+            workflowId,
+            steps,
+            currentIndex >= 0 ? currentIndex : 0
+          );
+        }
       } finally {
         setRunning(false);
       }
@@ -97,6 +164,12 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
       setEvents([]);
       setRunRes(null);
       setRunning(true);
+
+      // 進捗ウィンドウ用のステップを生成
+      const pluginFunctionIds = getPluginFunctionIds(workflow);
+      let steps: WorkflowProgressStep[] = parseWorkflowSteps(pluginFunctionIds);
+      const workflowName = workflow.displayName || "Workflow";
+
       try {
         append({
           kind: "message",
@@ -116,10 +189,28 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
         const workflowCodeId =
           saveResponse.workflow.workflowCode?.[0]?.id || "";
 
+        // 保存後に最新のステップを再取得
+        const savedPluginFunctionIds = getPluginFunctionIds(
+          saveResponse.workflow
+        );
+        if (savedPluginFunctionIds.length > 0) {
+          steps = parseWorkflowSteps(savedPluginFunctionIds);
+        }
+
         append({
           kind: "message",
           payload: { stage: "save", status: "done", workflowId },
         });
+
+        // 進捗開始を通知
+        if (steps.length > 0) {
+          steps = steps.map((step, index) => ({
+            ...step,
+            status: index === 0 ? "running" : "pending",
+            startedAt: index === 0 ? Date.now() : undefined,
+          }));
+          notifyWorkflowStart(workflowId, workflowName, steps);
+        }
 
         // 保存されたワークフローをIDで実行
         append({ kind: "message", payload: { stage: "run", status: "start" } });
@@ -134,8 +225,31 @@ export function useWorkflowRun(): UseWorkflowRunReturn {
         setRunRes(res);
         append({ kind: "message", payload: res });
         append({ kind: "done", payload: { stage: "run" } });
+
+        // 進捗完了を通知
+        if (steps.length > 0) {
+          steps = steps.map((step) => ({
+            ...step,
+            status: "completed" as const,
+            completedAt: Date.now(),
+          }));
+          notifyWorkflowComplete(workflowId, steps);
+        }
       } catch (e) {
         append({ kind: "error", payload: e });
+
+        // 進捗エラーを通知
+        if (steps.length > 0) {
+          const currentIndex = steps.findIndex((s) => s.status === "running");
+          if (currentIndex >= 0) {
+            steps[currentIndex].status = "error";
+          }
+          notifyWorkflowError(
+            workflow.id,
+            steps,
+            currentIndex >= 0 ? currentIndex : 0
+          );
+        }
       } finally {
         setRunning(false);
       }
