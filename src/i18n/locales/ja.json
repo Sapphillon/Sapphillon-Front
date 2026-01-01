@@ -172,7 +172,7 @@
     },
     "generate": {
         "workflow": "ワークフロー",
-        "workflowSteps": "ワークフローステップ",
+        "workflowSteps": "ワークフローの権限とアクセス",
         "expandWorkflow": "ワークフローを展開",
         "close": "閉じる",
         "prompt": "プロンプト",

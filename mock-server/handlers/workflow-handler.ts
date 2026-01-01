@@ -41,6 +41,7 @@ import {
   getWorkflowById,
   updateWorkflow,
   deleteWorkflow,
+  getPlugins,
 } from "../data/mock-data";
 
 /**
@@ -68,7 +69,52 @@ export const workflowHandler: ServiceImpl<typeof WorkflowService> = {
       }),
     });
 
-    // 最終的なワークフローを返す
+    // テスト用ワークフロー: 複数のプラグイン関数を使用
+    const testCode = `// Generated workflow from: ${request.prompt}
+import { fetch } from "com.sapphillon.http";
+import { read_file, write_file } from "com.sapphillon.filesystem";
+import { send_email, send_slack } from "com.sapphillon.notifications";
+import { query } from "com.sapphillon.database";
+
+function workflow() {
+  // 1. HTTPリクエストでデータを取得
+  const response = fetch({
+    url: "https://api.example.com/data",
+    method: "GET",
+  });
+
+  // 2. ファイルを読み込み
+  const config = read_file({ path: "/config/settings.json" });
+
+  // 3. データベースからユーザーを取得
+  const users = query({
+    sql: "SELECT * FROM users WHERE active = true",
+  });
+
+  // 4. 結果をファイルに保存
+  write_file({
+    path: "/output/result.json",
+    content: JSON.stringify({ response, users }),
+  });
+
+  // 5. メール通知
+  send_email({
+    to: "admin@example.com",
+    subject: "ワークフロー完了",
+    body: "処理が完了しました",
+  });
+
+  // 6. Slack通知
+  send_slack({
+    channel: "#alerts",
+    message: "ワークフローが正常に完了しました",
+  });
+
+  return { success: true, userCount: users.rowCount };
+}
+workflow();`;
+
+    // 最終的なワークフローを返す（プラグイン関数情報付き）
     yield create(GenerateWorkflowResponseSchema, {
       workflowDefinition: create(WorkflowSchema, {
         id: `workflow-${Date.now()}`,
@@ -79,20 +125,22 @@ export const workflowHandler: ServiceImpl<typeof WorkflowService> = {
           {
             id: `code-${Date.now()}`,
             codeRevision: 1,
-            code: `// Generated workflow from: ${request.prompt}
-function workflow() {
-  // TODO: Implement workflow logic
-  return { success: true };
-}
-workflow();`,
+            code: testCode,
             language: WFLang.TYPESCRIPT,
             createdAt: {
               seconds: BigInt(Math.floor(Date.now() / 1000)),
               nanos: 0,
             },
             result: [],
-            pluginPackages: [],
-            pluginFunctionIds: [],
+            pluginPackages: getPlugins(), // モックプラグインデータを使用
+            pluginFunctionIds: [
+              "fetch",
+              "read_file",
+              "write_file",
+              "send_email",
+              "send_slack",
+              "query",
+            ],
             allowedPermissions: [],
           },
         ],
@@ -162,8 +210,8 @@ workflow();`,
     }
 
     const workflow = getWorkflowById(request.byId.workflowId);
-      if (!workflow) {
-        throw new ConnectError("Workflow not found", Code.NotFound);
+    if (!workflow) {
+      throw new ConnectError("Workflow not found", Code.NotFound);
     }
 
     // モックの実行結果を返す

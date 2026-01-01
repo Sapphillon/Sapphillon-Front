@@ -18,7 +18,7 @@ import { RunPanel } from "./RunPanel";
 import { usePaneLayout } from "./usePaneLayout";
 import { useWorkflowGeneration } from "./useWorkflowGeneration";
 import type { GenerationEvent } from "./useWorkflowGeneration";
-import { WorkflowCanvas } from "@/components/workflow";
+import { WorkflowCanvas, WorkflowFunctionList } from "@/components/workflow";
 import { LuExpand } from "react-icons/lu";
 import type {
   GenerateWorkflowResponse,
@@ -94,12 +94,16 @@ function MobileLayout({
         display="flex"
         flexDirection="column"
       >
-          <Tabs.List bg="bg" borderWidth="1px" borderRadius="md" p={1}>
+        <Tabs.List bg="bg" borderWidth="1px" borderRadius="md" p={1}>
           <Tabs.Trigger value="workflow" flex={1}>
-            <Text fontSize={{ base: "xs", sm: "sm" }}>{t("generate.workflow")}</Text>
+            <Text fontSize={{ base: "xs", sm: "sm" }}>
+              {t("generate.workflow")}
+            </Text>
           </Tabs.Trigger>
           <Tabs.Trigger value="plugins" flex={1}>
-            <Text fontSize={{ base: "xs", sm: "sm" }}>{t("common.plugins")}</Text>
+            <Text fontSize={{ base: "xs", sm: "sm" }}>
+              {t("common.plugins")}
+            </Text>
           </Tabs.Trigger>
           <Tabs.Trigger value="run" flex={1}>
             <Text fontSize={{ base: "xs", sm: "sm" }}>{t("run.title")}</Text>
@@ -130,17 +134,24 @@ function MobileLayout({
                 <LuExpand />
               </IconButton>
             </HStack>
+            {/* 使用される関数リスト */}
             <Box
               flex={1}
               minH={0}
               borderWidth="1px"
               rounded="md"
               bg="bg.subtle"
-              overflow="hidden"
+              px={3}
+              py={2}
+              overflow="auto"
             >
-              {latestDefinition && (
-                <WorkflowCanvas workflow={latestDefinition} />
-              )}
+              {latestDefinition
+                ? (
+                  <WorkflowFunctionList
+                    workflow={latestDefinition}
+                  />
+                )
+                : <Text fontSize="xs" color="fg.muted">関数なし</Text>}
             </Box>
           </VStack>
         </Tabs.Content>
@@ -253,17 +264,24 @@ function DesktopLayout({
                   <LuExpand />
                 </IconButton>
               </HStack>
+              {/* 使用される関数リスト */}
               <Box
                 minH={0}
                 h="full"
                 borderWidth="1px"
                 rounded="md"
                 bg="bg.subtle"
-                overflow="hidden"
+                px={3}
+                py={2}
+                overflow="auto"
               >
-                {latestDefinition && (
-                  <WorkflowCanvas workflow={latestDefinition} />
-                )}
+                {latestDefinition
+                  ? (
+                    <WorkflowFunctionList
+                      workflow={latestDefinition}
+                    />
+                  )
+                  : <Text fontSize="xs" color="fg.muted">関数なし</Text>}
               </Box>
             </VStack>
           </VStack>

@@ -9,6 +9,8 @@ export { WorkflowExecutionTimeline } from "./WorkflowExecutionTimeline";
 export { WorkflowCanvas } from "./WorkflowCanvas";
 export { ActionNode } from "./ActionNode";
 export { NodeContainer } from "./NodeContainer";
+export { WorkflowProgressDots } from "./WorkflowProgressDots";
+export { WorkflowFunctionList } from "./WorkflowFunctionList";
 
 // ユーティリティ
 export {

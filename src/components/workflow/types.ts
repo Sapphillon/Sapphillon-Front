@@ -142,4 +142,3 @@ export interface ViewState {
   /** ビューモードを変更する関数 */
   setMode: (mode: ViewMode) => void;
 }
-
