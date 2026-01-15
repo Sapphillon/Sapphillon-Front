@@ -85,7 +85,8 @@
         "openMenu": "メニューを開く",
         "openOmniBar": "Omni Barを開く",
         "searchOrRun": "検索または実行…",
-        "theme": "テーマ"
+        "theme": "テーマ",
+        "store": "ストア"
     },
     "statusBar": {
         "automotorStatus": "Automotor ステータス",

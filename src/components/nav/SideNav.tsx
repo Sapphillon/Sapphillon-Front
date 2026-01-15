@@ -4,6 +4,7 @@ import { getRoutes } from "@/routes/registry";
 import { Box, HStack, Text, VStack } from "@chakra-ui/react";
 import { ColorModeButton } from "@/components/ui/color-mode";
 import { useI18n } from "@/hooks/useI18n";
+import { LuShoppingBag } from "react-icons/lu";
 
 export interface SideNavProps {
   onNavigate?: () => void;
@@ -14,15 +15,29 @@ export function SideNav({ onNavigate }: SideNavProps = {}) {
   const routes = React.useMemo(() => getRoutes(t), [t]);
   return (
     <VStack align="stretch" p={2} gap={1} h="full">
-      {routes.map((r) => (
-        <NavItem
-          key={r.key}
-          to={r.path}
-          label={r.label}
-          Icon={r.icon}
-          onClick={onNavigate}
-        />
-      ))}
+      {routes.flatMap((r) => {
+        const navItem = (
+          <NavItem
+            key={r.key}
+            to={r.path}
+            label={r.label}
+            Icon={r.icon}
+            onClick={onNavigate}
+          />
+        );
+        if (r.key === "plugins") {
+          return [
+            navItem,
+            <ExternalNavItem
+              key="store"
+              href="http://localhost:5173"
+              label={t("nav.store")}
+              Icon={LuShoppingBag}
+            />,
+          ];
+        }
+        return [navItem];
+      })}
       <Box
         px={3}
         py={2}
@@ -80,5 +95,37 @@ function NavItem({ to, label, Icon, onClick }: NavItemProps) {
         </HStack>
       )}
     </NavLink>
+  );
+}
+
+interface ExternalNavItemProps {
+  href: string;
+  label: string;
+  Icon: React.ComponentType<{ size?: string | number }>;
+}
+
+function ExternalNavItem({ href, label, Icon }: ExternalNavItemProps) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "none" }}
+    >
+      <HStack
+        position="relative"
+        px={3}
+        py={2}
+        rounded="md"
+        gap={3}
+        color="fg.muted"
+        transitionProperty="colors, shadow"
+        transitionDuration="normal"
+        _hover={{ bg: "bg.subtle", color: "fg" }}
+      >
+        <Box as={Icon} css={{ width: 18, height: 18 }} />
+        <Text fontSize={{ base: "sm", md: "md" }}>{label}</Text>
+      </HStack>
+    </a>
   );
 }

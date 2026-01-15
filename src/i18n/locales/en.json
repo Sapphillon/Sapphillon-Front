@@ -88,7 +88,8 @@
     "openMenu": "Open menu",
     "openOmniBar": "Open Omni Bar",
     "searchOrRun": "Search or run…",
-    "theme": "Theme"
+    "theme": "Theme",
+    "store": "Store"
   },
   "statusBar": {
     "automotorStatus": "Automotor Status",
